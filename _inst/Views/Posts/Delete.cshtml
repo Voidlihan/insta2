@@ -1,0 +1,18 @@
+﻿@model _inst.Models.Post.PostDeleteViewModel
+
+@{
+    ViewData["Title"] = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Delete</h1>
+
+<h3>Вы действительно хотите удалить данный пост?</h3>
+<div>
+    <hr />
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-action="Index">Вернуться назад</a>
+    </form>
+</div>

@@ -1,0 +1,77 @@
+﻿@model IEnumerable<_inst.Models.Post.PostIndexViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<a asp-action="Create" asp-controller="Posts">Добавить пост</a>
+
+<div id="posts">
+        
+    </div>
+@section scripts
+{
+    <script>
+        function showPosts(e) {
+            $.ajax({
+                type: "GET",
+                url: "/Posts/GetPosts",
+                success: function(res) {
+                    $("#posts").html(res);
+                }
+            });
+        }
+
+        function onCreateCommentHandler(id) {
+            var text = document.querySelector('#comment').value;
+            var object = new Object();
+            object.Text = text;
+            object.PostId = id;
+
+            $.ajax({
+                type: "POST",
+                url: "/Comments/CreateComment",
+                data: { comment: object },
+                success: function(result) {
+                    showPosts();
+                },
+                error: function() {
+                    alert("Ошибочка");
+                }
+            });
+        };
+
+        function onLikeHandler(id) {
+
+            var object = new Object();
+            object.PostId = id;
+
+            $.ajax({
+                type: "POST",
+                url: "/Likes/AddLike",
+                data: { like: object },
+                success: function(result) {
+                    showPosts();
+                },
+                error: function() {
+                    alert("Ошибочка");
+                }
+            });
+        }
+
+        actionHandler = (e) => {
+            e.preventDefault();
+            if (e.target.classList.contains('like')) {
+                var parent = e.target.closest(".post-item");
+                onLikeHandler(parent.id);
+            } else if (e.target.classList.contains('createPost')) {
+                var parent = e.target.closest(".post-item");
+                onCreateCommentHandler(parent.id);
+            }
+        }
+
+        showPosts();
+        var cardRow = document.querySelector("#posts").addEventListener("click", actionHandler);
+    </script>
+}
