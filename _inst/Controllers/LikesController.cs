@@ -30,18 +30,25 @@ namespace _inst.Controllers
         [HttpPost]
         public async Task<Like> AddLike(LikeViewModel like)
         {
-            var user = _userManager.Users.FirstOrDefault(u => u.Email == HttpContext.User.Identity.Name);
-            like.UserId = user.Id;
             var createdLike = _map.Map<Like>(like);
-            if (_uow.LikeRepository.isExist(createdLike.PostId, createdLike.UserId))
+            try
             {
-                _uow.LikeRepository.Remove(createdLike);
+                var user = _userManager.Users.FirstOrDefault(u => u.Email == HttpContext.User.Identity.Name);
+                like.UserId = user.Id;
+                if (_uow.LikeRepository.isExist(createdLike.PostId, createdLike.UserId))
+                {
+                    _uow.LikeRepository.Remove(createdLike);
+                }
+                else
+                {
+                    await _uow.LikeRepository.CreateAsync(createdLike);
+                }
+                await _uow.Save();
             }
-            else
+            catch(Exception err)
             {
-                await _uow.LikeRepository.CreateAsync(createdLike);
+                Console.WriteLine(err);
             }
-            await _uow.Save();
             return createdLike;
         }
     }

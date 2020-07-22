@@ -41,14 +41,21 @@ namespace _inst.Controllers
 
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
             var post = await _uow.PostRepository.GetAsync(id);
-            if (post == null)
+            try
             {
-                return NotFound();
+                if (id == null)
+                {
+                    return NotFound();
+                }
+                if (post == null)
+                {
+                    return NotFound();
+                }
+            }
+            catch(Exception err)
+            {
+                Console.WriteLine(err);
             }
             var viewModel = _map.Map<PostDetailViewModel>(post);
             return View(viewModel);
@@ -66,25 +73,19 @@ namespace _inst.Controllers
             {
                 var model = _map.Map<Post>(viewModel);
                 model.UserId = _userManager.GetUserId(HttpContext.User);
-
                 if (viewModel.Photo != null)
                 {
                     var path = "/Files/" + viewModel.Photo.FileName;
-
                     using (var fileStream = new FileStream(_environment.WebRootPath + path, FileMode.Create))
                     {
                         viewModel.Photo.CopyTo(fileStream);
                     }
-
                     model.PhotoPath = path;
                 }
-
                 var createdPost = await _uow.PostRepository.CreateAsync(model);
                 await _uow.Save();
-
                 return RedirectToAction("Index");
             }
-
             return View(viewModel);
         }
 
@@ -94,7 +95,6 @@ namespace _inst.Controllers
             {
                 return NotFound();
             }
-
             var post = await _uow.PostRepository.GetAsync(id);
             if (post == null)
             {
@@ -121,7 +121,6 @@ namespace _inst.Controllers
                     await _uow.Save();
                 }
                 catch (DbUpdateConcurrencyException)
-
                 {
                     if (!PostExists(postEditViewModel.Id))
                     {
@@ -181,7 +180,6 @@ namespace _inst.Controllers
             var viewModel = _map.Map<IList<PostIndexViewModel>>(posts);
             var user = _userManager.Users.FirstOrDefault(u => u.Email == HttpContext.User.Identity.Name);
             ViewBag.UserId = user?.Id;
-
             return PartialView(viewModel);
         }
 

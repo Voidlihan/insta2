@@ -37,11 +37,18 @@ namespace _inst.Controllers
         [HttpPost]
         public async Task<Comment> CreateComment(CommentCreateViewModel comment)
         {
-            var user = _userManager.Users.FirstOrDefault(u => u.Email == HttpContext.User.Identity.Name);
-            comment.CommentAuthor = user?.Name;
             var newComment = _map.Map<Comment>(comment);
-            await _uow.CommentRepository.CreateAsync(newComment);
-            await _uow.Save();
+            try
+            {
+                var user = _userManager.Users.FirstOrDefault(u => u.Email == HttpContext.User.Identity.Name);
+                comment.CommentAuthor = user?.Name;
+                await _uow.CommentRepository.CreateAsync(newComment);
+                await _uow.Save();
+            }
+            catch(Exception err)
+            {
+                Console.WriteLine(err);
+            }
             return newComment;
         }
     }
