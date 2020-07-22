@@ -11,7 +11,6 @@ namespace Infrastructure.Database.EFImplementations
         public IRepository<Post> PostRepository { get; set; }
         public IRepository<Comment> CommentRepository { get; set; }
         public IRepository<Like> LikeRepository { get; set; }
-
         public UnitOfWork(IRepository<Post> postRepository, IRepository<Comment> commentRepository, IRepository<Like> likeRepository, ApplicationContext context)
         {
             PostRepository = postRepository;
